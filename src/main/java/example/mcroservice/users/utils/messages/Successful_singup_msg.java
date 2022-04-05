@@ -1,23 +1,27 @@
 package example.mcroservice.users.utils.messages;
 
-public class Forgotten_password_msg implements Msg{
+public class Successful_singup_msg implements Msg{
   private String email;
-  private String subject = "Reset your password";
+  private String subject = "Welcome to our Service";
   private String html;
- 
+
+
   //CONSTRUCTOR---------------------------------------------------------------
-  public Forgotten_password_msg(String email, String code) {
+  public Successful_singup_msg(String email) {
     this.email = email;
     this.html = 
-      "<b>click on the following link:</b>"+
-      "<a href=\"\">Restore new password</a>"+
-      "<b> and use this secret code: "+code+"</b>";
+      "<b>Hey! Thank you for trusting us and what we do <3</b>";
   }
 
 
   //GETTERS AND SETTERS--------------------------------------------------------
   public String getEmail() {
     return email;
+  }
+
+
+  public void setEmail(String email) {
+    this.email = email;
   }
 
 
@@ -31,11 +35,6 @@ public class Forgotten_password_msg implements Msg{
   }
 
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-
   public String getHtml() {
     return html;
   }
@@ -44,4 +43,4 @@ public class Forgotten_password_msg implements Msg{
   public void setHtml(String html) {
     this.html = html;
   }
-} 
+}

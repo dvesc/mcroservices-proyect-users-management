@@ -65,7 +65,7 @@ public class Users_vo {
    //RELACIONE  S-----------------------------------------------------------------
    @OneToMany(
       mappedBy = "users_vo", //el nombre del parametro en la otra tabla
-      cascade = { //cascadas?????
+      cascade = { //cascadas????? no me generan tablas de mas raras 
         CascadeType.PERSIST,
         CascadeType.MERGE,
         CascadeType.DETACH,

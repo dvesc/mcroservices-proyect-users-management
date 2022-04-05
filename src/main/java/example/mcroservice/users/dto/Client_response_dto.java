@@ -1,38 +1,61 @@
 package example.mcroservice.users.dto;
 
+import org.springframework.http.HttpStatus;
+
 public class Client_response_dto {
-  private Integer status_code = 200;
+  private HttpStatus http_status;
   private String message;
+  private Data_object data = null;
   
 
-  //CONSTRUCTOR----------------------------------------------------------------
-  public Client_response_dto(String message) {
+  //CONSTRUCTORES----------------------------------------------------------------
+  public Client_response_dto(
+  HttpStatus http_status, 
+  String message, 
+  Data_object data) {
+    this.http_status = http_status;
+    this.message = message;
+    this.data = data;
+  }
+
+  public Client_response_dto(
+  HttpStatus http_status, 
+  String message) {
+    this.http_status = http_status;
     this.message = message;
   }
 
 
+
   //GETTERS AND SETTERS---------------------------------------------------------
-  public Integer getStatus_code() {
-    return status_code;
+  public HttpStatus getHttp_status() {
+    return http_status;
   }
 
-  public void setStatus_code(Integer status_code) {
-    this.status_code = status_code;
+
+  public void setHttp_status(HttpStatus http_status) {
+    this.http_status = http_status;
   }
+
 
   public String getMessage() {
     return message;
   }
 
+
   public void setMessage(String message) {
     this.message = message;
   }
 
-  //GETTERS AND SETTERS--------------------------------------------------------
-  
 
-  
-  
+  public Data_object getData() {
+    return data;
+  }
+
+
+  public void setData(Data_object data) {
+    this.data = data;
+  }
 
 
 

@@ -22,29 +22,36 @@ import com.auth0.utils.tokens.IdTokenVerifier;
 import com.auth0.utils.tokens.PublicKeyProvider;
 import com.auth0.utils.tokens.SignatureVerifier;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import example.mcroservice.users.dto.validators.Auth0_user_dto;
 import example.mcroservice.users.errors.my_exceptions.My_api_exception;
 import example.mcroservice.users.errors.my_exceptions.My_auth0_exception;
 
 
 @Component
 public class Auth0 {
+  //Propiedades que manejan los datos sencibles
+  //Aun no se como sacarlas como env
+  private String api_domain = "dev-51lqhc63.us.auth0.com";
+  private String client_id = "mQIv59sxBT4kdURqMHOjkbN8QpPKlWPG";
+  private String client_secret = "bUrRwImhYusIyoazpDZ-bmtCaTLjWbfaYk8jANEs9g2g383qb3crPGZwLebR5CfW";
+  private String connection_type = "Username-Password-Authentication";
+
 
   //EL SDK-------------------------------------------------------------------
   private AuthAPI auth_api = new AuthAPI(
-      "dev-51lqhc63.us.auth0.com", //Api domain
-      "mQIv59sxBT4kdURqMHOjkbN8QpPKlWPG", //Api cliend Id
-      "bUrRwImhYusIyoazpDZ-bmtCaTLjWbfaYk8jANEs9g2g383qb3crPGZwLebR5CfW" //Api cliend secret id
-  );
+    api_domain, //Api domain
+    client_id, //Api cliend Id
+    client_secret //Api cliend secret id
+);
   //EL API MANAGEMENT--------------------------------------------------------
   private AuthRequest authRequest = auth_api.requestToken(
-      "https://dev-51lqhc63.us.auth0.com/api/v2/"
+      "https://"+api_domain+"/api/v2/"
   );
   private TokenHolder holder = execute_authRequest();
   private ManagementAPI mgmt = new ManagementAPI(
-      "dev-51lqhc63.us.auth0.com",
+      api_domain,
       holder.getAccessToken()
   );
 
@@ -88,7 +95,7 @@ public class Auth0 {
     SignUpRequest singup_request =  auth_api.signUp(
         email,
         user_password.toCharArray(), //Con String esta descontinuado
-        "Username-Password-Authentication"
+        connection_type
     );
 
     //Ejecutamos la accion
@@ -129,7 +136,7 @@ public class Auth0 {
     try {
         //Configuramos los valores necesarios para que la libreria obtenga la key
         JwkProvider provider = new JwkProviderBuilder(
-            "https://dev-51lqhc63.us.auth0.com"
+          "https://"+api_domain
         ).build();
         SignatureVerifier sigVerifier = SignatureVerifier.forRS256(
             new PublicKeyProvider() {
@@ -147,8 +154,8 @@ public class Auth0 {
         
         //Configuramos el valor necesario para que auth0 valide   
         IdTokenVerifier idTokenVerifier = IdTokenVerifier.init(
-            "https://dev-51lqhc63.us.auth0.com/",
-            "mQIv59sxBT4kdURqMHOjkbN8QpPKlWPG", //Cliend id
+            "https://"+api_domain+"/",
+            client_id, //Cliend id
             sigVerifier
         ).build();
 
@@ -159,10 +166,12 @@ public class Auth0 {
             //entocnes con null le decimos que no esperamos ningun "nonce"
         );
 
-    } catch (IdTokenValidationException ex) {
-        System.out.printf("Entramos en el catch de auth0");
-        //Capturamos la exepcion y generamos una runtime exception
-        throw new RuntimeException(ex.getMessage());
+    } catch (IdTokenValidationException e) {
+        //Este seria un error a la hora de validar mas no que esl token este mal
+        throw new My_auth0_exception(  
+            e.getMessage(), 
+            e.getClass().getName()
+        );
     }
     return true;
 }

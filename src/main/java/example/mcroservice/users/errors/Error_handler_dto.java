@@ -2,11 +2,6 @@ package example.mcroservice.users.errors;
 
 import org.springframework.http.HttpStatus;
 
-//import lombok.Builder;
-//import lombok.Data;
-//Estas notaciones son interezantes, ver la documentacion de lombok
-//@Data //Digamos que te construye una clase A PARTIR DE SOLO LAS PROPIEDADES
-//@Builder
 public class Error_handler_dto {
   private HttpStatus http_status = null;
   private String error_name = null;

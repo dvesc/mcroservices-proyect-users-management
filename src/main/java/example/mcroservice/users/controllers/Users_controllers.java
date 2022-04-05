@@ -3,10 +3,16 @@ package example.mcroservice.users.controllers;
 import com.auth0.json.auth.CreatedUser;
 import example.mcroservice.users.dto.Client_response_dto;
 import example.mcroservice.users.dto.Get_method_response;
+import example.mcroservice.users.dto.User_data_return;
 import example.mcroservice.users.dto.validators.Change_password_dto;
 import example.mcroservice.users.dto.validators.Forgot_password_dto;
 import example.mcroservice.users.dto.validators.New_user_dto;
 import example.mcroservice.users.dto.validators.Updated_user_dto;
+import example.mcroservice.users.errors.my_exceptions.Delete_data_exception;
+import example.mcroservice.users.errors.my_exceptions.Phone_number_exception;
+import example.mcroservice.users.errors.my_exceptions.Restore_password_exception;
+import example.mcroservice.users.errors.my_exceptions.Sing_up_exception;
+import example.mcroservice.users.errors.my_exceptions.Update_data_exception;
 import example.mcroservice.users.mappers.Users_mapper;
 import example.mcroservice.users.routes.Users_routes;
 import example.mcroservice.users.services.Pass_req_services;
@@ -15,6 +21,7 @@ import example.mcroservice.users.utils.Auth0.Auth0;
 import example.mcroservice.users.utils.Rabbitmq.Rabbitmq;
 import example.mcroservice.users.utils.messages.Forgotten_password_msg;
 import example.mcroservice.users.utils.messages.Password_reset_msg;
+import example.mcroservice.users.utils.messages.Successful_singup_msg;
 import example.mcroservice.users.utils.phone_validator.Phone_validator;
 import example.mcroservice.users.utils.random_strings.Random_string;
 import example.mcroservice.users.vo.Pass_req_vo;
@@ -52,6 +59,7 @@ public class Users_controllers implements Users_routes {
   //CREAR UN USUARIO-----------------------------------------------------------
   @Override
   public ResponseEntity<Client_response_dto> create_a_user(New_user_dto body) {
+    User_data_return data = null;
     String password = body.getPassword(),
         name =  body.getFirst_name()+" "+body.getLast_name(),
         email = body.getEmail(),
@@ -73,7 +81,7 @@ public class Users_controllers implements Users_routes {
         user.setCountry_code(country_code); 
         user.setPhone_number(phone_number);
       }else
-       throw new RuntimeException("Invalid phone number for region");
+       throw new Phone_number_exception("Invalid phone number for region");
         
       //Guardamos en Auth0
       CreatedUser auth0_user = auth0.create_a_user(
@@ -83,15 +91,25 @@ public class Users_controllers implements Users_routes {
         country_code+phone_number
       ); 
       user.setAuth0_id( auth0_user.getUserId()); //Guardamos la id de Auth0
-      user_services.create_user(user); //Guardamos el usuario en nuestra db
-      ResponseEntity.ok().body(user);
+      data = user_services.create_user(user); //Guardamos el usuario en nuestra db
     } else
-      throw new RuntimeException("This user already exist");
+      throw new Sing_up_exception("This user already exist");
 
-    //Enviamos la respuesta
+    //Enviamos  msg de bienvenida al correo electronico
+    Successful_singup_msg msg = new Successful_singup_msg(email);
+    rabbitmq.send(
+      msg,
+      "email.successful_singup"
+    );
+
+    //Enviamos la respuesta al frontend
     return new ResponseEntity<Client_response_dto>(
-      new Client_response_dto("User created successfully"),
-      HttpStatus.CREATED
+      new Client_response_dto(
+        HttpStatus.CREATED, //es para que salga literalmente "CREATED"
+        "User created successfully",
+        data
+      ),
+      HttpStatus.CREATED // es para que salga el codigo 201
     );
   }
 
@@ -103,6 +121,7 @@ public class Users_controllers implements Users_routes {
   public ResponseEntity<Client_response_dto> update_a_user(
   Long user_id,
   Updated_user_dto body) {
+    User_data_return data;
     String country_code = body.phone.getCountryCode(),
       phone_number =  body.phone.getPhoneNumber();
 
@@ -113,29 +132,28 @@ public class Users_controllers implements Users_routes {
     if(coincidence.isPresent()){
       Users_vo old_user = coincidence.get();
 
-      //Actualiza el VO
-
-
       if(body.getEmail() != null) {
         //Comprobamos que el email no exista ya en mi db
         Optional<Users_vo> same_email = Optional.ofNullable(
           user_services.get_user_by_email(body.getEmail())
         );
         if(same_email.isPresent())
-          throw new RuntimeException(
-            "There is already a user with that email");
+          throw new Update_data_exception(
+            "There is already a user with that email",
+            HttpStatus.CONFLICT
+          );
       
         old_user.setEmail(body.getEmail());
       }
-        
-
+      
       if(country_code != null && phone_number != null){
         Phone_validator validated_phone = new Phone_validator(
           phone_number, country_code);
         //Validamos que sea un numero de telefono valido
-        if(!validated_phone.validate_a_phone()){
-          throw new RuntimeException("Invalid phone number for region");
-        }
+        if(!validated_phone.validate_a_phone())
+          throw new Phone_number_exception(
+            "Invalid phone number for region");
+        
         old_user.setPhone_number(body.phone.getPhoneNumber());
         old_user.setCountry_code(body.phone.getCountryCode());
       }
@@ -154,14 +172,21 @@ public class Users_controllers implements Users_routes {
         body.getEmail(),
         null //me sigue dando error el phone_number
       );
-      user_services.update_a_user(old_user); //Actualizamos en nuestra base de datos
+      data = user_services.update_a_user(old_user); //Actualizamos en nuestra base de datos
     } else 
-      throw new RuntimeException("The user does not exist");
+      throw new Update_data_exception(
+        "The user does not exist",
+        HttpStatus.NOT_FOUND
+      );
 
 
     return new ResponseEntity<Client_response_dto>(
-      new Client_response_dto("User has been updated successfully"),
-      HttpStatus.CREATED
+      new Client_response_dto(
+        HttpStatus.OK,
+        "User has been updated successfully",
+        data
+      ),
+      HttpStatus.OK
     );
   }
 
@@ -184,11 +209,13 @@ public class Users_controllers implements Users_routes {
     
       user_services.update_a_user(old_user);   //Actualizo en mi db
     } else
-      throw new RuntimeException("The user does not exist");
-
+      throw new Delete_data_exception("The user does not exist");
+      
 
     return new ResponseEntity<Client_response_dto>(
-      new Client_response_dto("User has been deleted successfully"),
+      new Client_response_dto(
+        HttpStatus.OK,
+        "User has been deleted successfully"),
       HttpStatus.OK
     );
   }
@@ -233,12 +260,17 @@ public class Users_controllers implements Users_routes {
         "email.forgot_password"
       );
     } else 
-      throw new RuntimeException("The user does not exist");
+      throw new Restore_password_exception(
+        "The user does not exist", 
+        HttpStatus.NOT_FOUND
+      );
 
       
     return new ResponseEntity<Client_response_dto>(
-      new Client_response_dto("An email has been sent to your email address"),
-      HttpStatus.OK
+      new Client_response_dto(
+        HttpStatus.ACCEPTED,
+        "An email has been sent to your email address"),
+      HttpStatus.ACCEPTED
     );
   }
 
@@ -251,7 +283,6 @@ public class Users_controllers implements Users_routes {
   public ResponseEntity<Client_response_dto> new_password(
   String process_code,
   Change_password_dto body) {
-    System.out.println(process_code);
     //Obtenemos de la db
     Optional<Pass_req_vo> coincidence = Optional.ofNullable(
       pass_req_services.find_by_process_code(process_code)
@@ -285,14 +316,23 @@ public class Users_controllers implements Users_routes {
         );
 
       }else
-        throw new RuntimeException("Process_code has already been consumed");
+        throw new Restore_password_exception(
+          "Process_code has already been consumed",
+          HttpStatus.LOCKED
+        );
     } else 
-      throw new RuntimeException("Invalid process_code!");
+      throw new Restore_password_exception(
+        "Invalid process_code!",
+        HttpStatus.UNAUTHORIZED
+      );
     
 
     return new ResponseEntity<Client_response_dto>(
-      new Client_response_dto("User has been updated successfully"),
-      HttpStatus.CREATED
+      new Client_response_dto(
+        HttpStatus.OK,
+        "Password has been updated successfully"
+      ),
+      HttpStatus.OK
     );
   }
 
