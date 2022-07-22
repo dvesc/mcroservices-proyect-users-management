@@ -23,3 +23,9 @@ cloud:
         secret-key: LDVVgkpHvq17gYLjDKaab5rNuGZ3riGJ+YDCWtwT
       end-point: 
         url: https://sqs.us-west-2.amazonaws.com/901499985641/contracts-mgmt
+  
+  auth0:
+    api-domain: dev-51lqhc63.us.auth0.com
+    client-id: mQIv59sxBT4kdURqMHOjkbN8QpPKlWPG
+    client-secret: bUrRwImhYusIyoazpDZ-bmtCaTLjWbfaYk8jANEs9g2g383qb3crPGZwLebR5CfW
+    connection-type: Username-Password-Authentication

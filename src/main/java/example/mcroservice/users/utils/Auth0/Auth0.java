@@ -20,7 +20,7 @@ import com.auth0.net.SignUpRequest;
 import com.auth0.utils.tokens.IdTokenVerifier;
 import com.auth0.utils.tokens.PublicKeyProvider;
 import com.auth0.utils.tokens.SignatureVerifier;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import example.mcroservice.users.errors.my_exceptions.My_api_exception;
@@ -29,11 +29,15 @@ import example.mcroservice.users.errors.my_exceptions.My_auth0_exception;
 @Component
 public class Auth0 {
     // Propiedades que manejan los datos sencibles
-    // Aun no se como sacarlas como env
-    private String api_domain = "dev-51lqhc63.us.auth0.com";
-    private String client_id = "mQIv59sxBT4kdURqMHOjkbN8QpPKlWPG";
-    private String client_secret = "bUrRwImhYusIyoazpDZ-bmtCaTLjWbfaYk8jANEs9g2g383qb3crPGZwLebR5CfW";
-    private String connection_type = "Username-Password-Authentication";
+
+    @Value("${cloud.auth0.api-domain}")
+    private String api_domain;
+    @Value("${cloud.auth0.client-id}")
+    private String client_id;
+    @Value("${cloud.auth0.client-secret}")
+    private String client_secret;
+    @Value("${cloud.auth0.connection-type}")
+    private String connection_type;
 
     // EL SDK-------------------------------------------------------------------
     private AuthAPI auth_api = new AuthAPI(
