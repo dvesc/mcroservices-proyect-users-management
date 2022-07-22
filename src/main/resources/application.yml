@@ -1,0 +1,25 @@
+#CONECTARNOS A BASE DE DATOS DE MYSQL WORKBENCH
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/users_mcroservice?useSSL=false
+    username: java_user
+    password: "#D1123581321d"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL57InnoDBDialect
+
+cloud:
+  aws:
+    sqs:
+      region: "us-west-2"
+      credentials:
+        access-key: AKIA5DZMWD3UXUQ3OFCZ
+        secret-key: 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
+      end-point: 
+        url: https://sqs.us-west-2.amazonaws.com/901499985641/contracts-mgmt

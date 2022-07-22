@@ -78,7 +78,8 @@ public class User_services {
   Direction direction, 
   int page,
   int size){
-    Page<Users_vo> coincidences = null;
+    try {
+      Page<Users_vo> coincidences = null;
     Pageable pageable = PageRequest.of( //me calcula la paginacion y ordena
         page, //OJO-> si queremos la primera pag debe ser 0
         size
@@ -114,6 +115,9 @@ public class User_services {
     }
     
     return coincidences;
+    } catch (Exception e) {
+      throw e;
+    }
   }
   
 }

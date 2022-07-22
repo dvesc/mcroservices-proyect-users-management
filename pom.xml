@@ -101,6 +101,29 @@
 
 
 
+
+		<!--PARA USAR AWS SQS-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-aws</artifactId>
+			<version>2.2.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-aws-messaging</artifactId>
+			<version>2.2.1.RELEASE</version>
+		</dependency>
+
+
+
+		<!--Tendremos tambien que cambiar el pueto por default a otro-->
+		<!--dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-aws-messaging</artifactId>
+			<version>2.2.6.RELEASE</version>
+		</dependency-->
+
+
 		<!--LA VI EN UN VIDEO PARA HACER EL MANEJOR DE ERRORES-->
 		<dependency>
   	 <groupId>org.projectlombok</groupId>

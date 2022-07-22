@@ -65,19 +65,19 @@ public class Users_repo_class implements Users_repository {
   @Override
   public void deleteAllByIdInBatch(Iterable<Long> ids) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteAllInBatch() {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteAllInBatch(Iterable<Users_vo> entities) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -113,7 +113,7 @@ public class Users_repo_class implements Users_repository {
   @Override
   public void flush() {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -161,31 +161,31 @@ public class Users_repo_class implements Users_repository {
   @Override
   public void delete(Users_vo entity) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteAll() {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteAll(Iterable<? extends Users_vo> entities) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteAllById(Iterable<? extends Long> ids) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void deleteById(Long id) {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -235,5 +235,11 @@ public class Users_repo_class implements Users_repository {
     // TODO Auto-generated method stub
     return null;
   }
-  
+
+  @Override
+  public Users_vo find_auth0_id(String auth0_id) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

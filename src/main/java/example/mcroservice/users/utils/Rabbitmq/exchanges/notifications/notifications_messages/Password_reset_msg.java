@@ -1,18 +1,20 @@
-package example.mcroservice.users.utils.messages;
+package example.mcroservice.users.utils.Rabbitmq.exchanges.notifications.notifications_messages;
 
-public class Password_reset_msg implements Msg{
+import example.mcroservice.users.utils.Rabbitmq.exchanges.Msg;
+
+public class Password_reset_msg implements Msg {
   private String email;
   private String subject = "Passsword reset successfully";
   private String html;
 
-  //CONSTRUCTOR----------------------------------------------------------------
+  // CONSTRUCTOR----------------------------------------------------------------
   public Password_reset_msg(String email) {
     this.email = email;
     this.html = "<b>The password has been successfully reset</b>";
-    
+
   }
 
-  //GETTERS AND SETTERS--------------------------------------------------------
+  // GETTERS AND SETTERS--------------------------------------------------------
 
   public String getEmail() {
     return email;
@@ -37,12 +39,5 @@ public class Password_reset_msg implements Msg{
   public void setHtml(String html) {
     this.html = html;
   }
-
-  
-
-
-
-  
-
 
 }
